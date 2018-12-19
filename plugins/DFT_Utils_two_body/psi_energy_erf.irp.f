@@ -14,45 +14,21 @@ BEGIN_PROVIDER [ double precision, psi_energy_erf, (N_states) ]
 END_PROVIDER
 
 
-BEGIN_PROVIDER [ double precision, psi_energy_core_and_sr_hartree, (N_states) ]
+BEGIN_PROVIDER [ double precision, psi_energy_h_core_and_sr_hartree, (N_states) ]
   implicit none
   BEGIN_DOC
-! psi_energy_core                = <Psi| h_{core} + v_{H}^{sr}|Psi>
+! psi_energy_h_core                = <Psi| h_{core} + v_{H}^{sr}|Psi>
   END_DOC
-  psi_energy_core_and_sr_hartree = psi_energy_core + short_range_Hartree
+  psi_energy_h_core_and_sr_hartree = psi_energy_h_core + short_range_Hartree
 END_PROVIDER
 
-
- BEGIN_PROVIDER [ double precision, psi_energy_core, (N_states) ]
-  implicit none
-  integer :: i
-  integer :: j,k
-  double precision :: tmp(mo_tot_num,mo_tot_num),mono_ints(mo_tot_num,mo_tot_num)
-  BEGIN_DOC
-! psi_energy_core                = <Psi| h_{core} |Psi>
-  END_DOC
-  psi_energy_core = 0.d0
-  do j = 1, mo_tot_num
-   do k = 1, mo_tot_num
-    mono_ints(k,j) = mo_nucl_elec_integral(k,j) + mo_kinetic_integral(k,j)
-   enddo
-  enddo
-  do i = 1, N_states
-   do j = 1, mo_tot_num
-    do k = 1, mo_tot_num
-     tmp(k,j) = one_body_dm_alpha_mo_for_dft(k,j,i) + one_body_dm_beta_mo_for_dft(k,j,i)
-    enddo
-   enddo
-   call get_average(mono_ints,tmp,psi_energy_core(i))
-  enddo
-END_PROVIDER
 
 BEGIN_PROVIDER [ double precision, total_range_separated_electronic_energy, (N_states) ]
   implicit none
   BEGIN_DOC
 ! Total_range_separated_electronic_energy = <Psi| h_{core} |Psi> + (1/2) <Psi| v_{H}^{sr} |Psi> + <i|W_{ee}^{lr}|i> + E_{x} + E_{c}
   END_DOC
-   total_range_separated_electronic_energy = psi_energy_core + short_range_Hartree + psi_energy_erf + energy_x + energy_c 
+   total_range_separated_electronic_energy = psi_energy_h_core + short_range_Hartree + psi_energy_erf + energy_x + energy_c 
 END_PROVIDER
 
 
@@ -92,12 +68,12 @@ END_PROVIDER
   
   do j= 1, elec_beta_num
     do i = j+1, elec_beta_num
-      bi_elec_ref_bitmask_energy += mo_bielec_integral_erf_jj_anti(occ(i,2),occ(j,2))
-      ref_bitmask_energy += mo_bielec_integral_erf_jj_anti(occ(i,2),occ(j,2))
+      bi_elec_ref_bitmask_energy_erf += mo_bielec_integral_erf_jj_anti(occ(i,2),occ(j,2))
+      ref_bitmask_energy_erf += mo_bielec_integral_erf_jj_anti(occ(i,2),occ(j,2))
     enddo
     do i= 1, elec_alpha_num
-      bi_elec_ref_bitmask_energy += mo_bielec_integral_erf_jj(occ(i,1),occ(j,2))
-      ref_bitmask_energy += mo_bielec_integral_erf_jj(occ(i,1),occ(j,2))
+      bi_elec_ref_bitmask_energy_erf += mo_bielec_integral_erf_jj(occ(i,1),occ(j,2))
+      ref_bitmask_energy_erf += mo_bielec_integral_erf_jj(occ(i,1),occ(j,2))
     enddo
   enddo
   

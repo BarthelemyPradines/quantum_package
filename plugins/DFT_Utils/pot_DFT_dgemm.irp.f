@@ -50,7 +50,7 @@
   potential_c_beta_ao = 0.d0
   potential_x_beta_ao = 0.d0
 
-  provide one_body_dm_beta_mo_for_dft
+  provide one_body_dm_mo_beta_for_dft
   double precision :: r(3),rho_a,rho_b
   r = 0.d0
   call dm_dft_alpha_beta_at_r(r,rho_a,rho_b)

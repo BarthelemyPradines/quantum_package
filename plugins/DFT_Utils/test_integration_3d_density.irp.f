@@ -248,7 +248,7 @@ subroutine test_r12_psi(nx,rmax)
     print*,'error' 
     print*,r12,r12_test
    endif
-   call local_r12_operator_on_hf(r1,r2,integral)
+   call f_HF_aa(r1,r2,integral)
    if(integral.le.0.d0)then
     print*,integral,r12,mos_array_r1(1)*mos_array_r2(1) 
     pause
@@ -290,7 +290,7 @@ subroutine test_erf_coulomb_oprerator
   r2(2) += dx
   r12 = dsqrt((r1(1)-r2(1))**2 + (r1(2)-r2(2))**2 +(r1(3)-r2(3))**2 )
 ! call erf_coulomb_operator_in_real_space(r1,r2,coulomb) 
-  call local_r12_operator_on_hf(r1,r2,coulomb)
+  call f_HF_aa(r1,r2,coulomb)
   write(i_unit_output,*)r12,1.d0/r12 * (1.d0 - erfc(mu_erf * r12)) ,coulomb
  enddo
 end

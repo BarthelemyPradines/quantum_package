@@ -32,18 +32,23 @@
 
  BEGIN_PROVIDER [double precision, Energy_c_md_on_top_PBE_mu_of_r_UEG, (N_states)]
 &BEGIN_PROVIDER [double precision, Energy_c_md_on_top_PBE_mu_of_r, (N_states)]
+&BEGIN_PROVIDER [double precision, Energy_c_md_on_top_mu_of_r, (N_states)]
  BEGIN_DOC
   ! Energy_c_md_on_top_PBE_mu_of_r_UEG_vector = PBE-on_top multi determinant functional with exact on top extracted from the UEG using a mu(r) interaction 
   ! Energy_c_md_on_top_PBE_mu_of_r_vector     = PBE-on_top multi determinant functional with exact on top extrapolated for large mu using a mu(r) interaction 
+  ! Energy_c_md_on_top_u_of_r_vector     = on_top multi determinant functional with exact on top extrapolated for large mu using a mu(r) interaction 
  END_DOC
  implicit none
  double precision ::  r(3)
- double precision :: weight,mu
+ double precision :: weight,mu,pi
  integer :: i,istate
  double precision,allocatable  :: eps_c_md_on_top_PBE(:),two_dm(:)
+ pi = 4.d0 * datan(1.d0)
+
  allocate(eps_c_md_on_top_PBE(N_states),two_dm(N_states))
  Energy_c_md_on_top_PBE_mu_of_r_UEG = 0.d0
  Energy_c_md_on_top_PBE_mu_of_r = 0.d0
+ Energy_c_md_on_top_mu_of_r = 0.d0
   
  print*,'Providing Energy_c_md_mu_of_r_PBE_on_top ...'
  call wall_time(wall0)
@@ -62,6 +67,11 @@
   call give_epsilon_c_md_on_top_PBE_mu_corrected_from_two_dm(mu,r,two_dm,eps_c_md_on_top_PBE)
   do istate = 1, N_states
    Energy_c_md_on_top_PBE_mu_of_r(istate) += eps_c_md_on_top_PBE(istate) * weight
+  enddo
+  do istate = 1, N_states
+   if(mu.gt.1.d-10)then
+    Energy_c_md_on_top_mu_of_r(istate) += ((-2.d0+sqrt(2.d0))*sqrt(2.d0*pi)/(3.d0*(mu**3))) * two_dm(istate) * weight 
+   endif
   enddo
  enddo
  double precision :: wall1, wall0

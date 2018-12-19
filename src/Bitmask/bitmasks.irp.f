@@ -583,10 +583,6 @@ END_PROVIDER
    list_del(n_del_orb_tmp) = i
    list_del_tmp(n_del_orb_tmp) = i
    list_del_reverse(i) = n_del_orb_tmp
-! else if (mo_class(i) == 'Virtual')then
-!  n_virt_orb += 1
-!  list_virt(n_virt_orb_tmp) = i
-!  list_virt_reverse(i) = 1
   endif
  enddo
 
@@ -824,7 +820,6 @@ END_PROVIDER
  enddo
  END_PROVIDER
 
- 
  BEGIN_PROVIDER [integer, n_core_orb_allocate]
  implicit none
  n_core_orb_allocate = max(n_core_orb,1)

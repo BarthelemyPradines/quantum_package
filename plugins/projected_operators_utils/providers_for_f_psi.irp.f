@@ -15,6 +15,7 @@ BEGIN_PROVIDER [double precision, V_kl_contracted_transposed, (n_points_final_gr
  double precision :: wall0,wall1
  call wall_time(wall0)
 
+ V_kl_contracted_transposed = 0.d0
  print*,'Providing  V_kl_contracted_transposed ..... '
  !$OMP PARALLEL        &
  !$OMP DEFAULT (NONE)  &
@@ -25,7 +26,6 @@ BEGIN_PROVIDER [double precision, V_kl_contracted_transposed, (n_points_final_gr
   do l = 1, mo_tot_num ! 2 
    do k = 1, mo_tot_num ! 1 
     call get_mo_bielec_integrals_ij(k,l,mo_tot_num,integrals_array,mo_integrals_map) 
-    V_kl_contracted_transposed(k,l,:) = 0.d0
     do ipoint = 1, n_points_final_grid
      do j = 1, mo_tot_num
       do i = 1, mo_tot_num
@@ -73,6 +73,7 @@ BEGIN_PROVIDER [double precision, rho2_kl_contracted_transposed, (n_points_final
  double precision :: wall0,wall1
  print*,'Providing  rho2_kl_contracted_transposed ..... '
  call wall_time(wall0)
+ rho2_kl_contracted_transposed = 0.d0
  !$OMP PARALLEL        &
  !$OMP DEFAULT (NONE)  &
  !$OMP PRIVATE (ipoint,k,l,i,j) & 
@@ -80,7 +81,6 @@ BEGIN_PROVIDER [double precision, rho2_kl_contracted_transposed, (n_points_final
  !$OMP DO              
  do l = 1, mo_tot_num ! 2 
   do k = 1, mo_tot_num ! 1 
-   rho2_kl_contracted_transposed(k,l,:) = 0.d0
    do ipoint = 1, n_points_final_grid
     do j = 1, mo_tot_num
      do i = 1, mo_tot_num
@@ -115,62 +115,112 @@ BEGIN_PROVIDER [double precision, rho2_kl_contracted, (mo_tot_num,mo_tot_num,n_p
 END_PROVIDER 
 
 
-BEGIN_PROVIDER [double precision, f_psi_B, (n_points_final_grid)]
+BEGIN_PROVIDER [double precision, f_psi_ab, (n_points_final_grid)]
  implicit none
  integer :: ipoint
  integer :: k,l 
  double precision :: wall0,wall1
  provide two_bod_alpha_beta_mo_physician 
- print*,'Providing  f_psi_B ..... '
+ print*,'Providing  f_psi_ab ..... '
  call wall_time(wall0)
  provide V_kl_contracted rho2_kl_contracted
  !$OMP PARALLEL        &
  !$OMP DEFAULT (NONE)  &
  !$OMP PRIVATE (ipoint,k,l) & 
- !$OMP SHARED  (mo_tot_num, n_points_final_grid, rho2_kl_contracted, V_kl_contracted, f_psi_B)
+ !$OMP SHARED  (mo_tot_num, n_points_final_grid, rho2_kl_contracted, V_kl_contracted, f_psi_ab)
  !$OMP DO              
  do ipoint = 1, n_points_final_grid
-  f_psi_B(ipoint) = 0.d0
+  f_psi_ab(ipoint) = 0.d0
   do l = 1, mo_tot_num ! 2 
    do k = 1, mo_tot_num ! 1
-    f_psi_B(ipoint) += V_kl_contracted(k,l,ipoint) * rho2_kl_contracted(k,l,ipoint)
+    f_psi_ab(ipoint) += V_kl_contracted(k,l,ipoint) * rho2_kl_contracted(k,l,ipoint)
    enddo
   enddo
  enddo
  !$OMP END DO
  !$OMP END PARALLEL
  call wall_time(wall1)
- print*,'Time to provide f_psi_B = ',wall1 - wall0
+ print*,'Time to provide f_psi_ab = ',wall1 - wall0
 END_PROVIDER 
 
 
-BEGIN_PROVIDER [double precision, f_psi_B_old, (n_points_final_grid)]
+
+
+
+
+BEGIN_PROVIDER [double precision, f_psi_ab_old, (n_points_final_grid)]
  implicit none
  integer :: ipoint
  double precision :: r(3),coulomb,two_body_dm
  integer :: k,l 
   r = 0.d0
  double precision :: wall0,wall1
- print*,'Providing  f_psi_B_old ..... '
+ print*,'Providing  f_psi_ab_old ..... '
  provide two_bod_alpha_beta_mo_physician 
  call wall_time(wall0)
- call expectation_value_in_real_space(r,r,coulomb,two_body_dm)
+ call f_PSI_ab_routine(r,r,coulomb,two_body_dm)
  !$OMP PARALLEL        &
  !$OMP DEFAULT (NONE)  &
  !$OMP PRIVATE (ipoint,r,coulomb,two_body_dm) & 
- !$OMP SHARED  (n_points_final_grid, f_psi_B_old, final_grid_points)
+ !$OMP SHARED  (n_points_final_grid, f_psi_ab_old, final_grid_points)
  !$OMP DO              
  do ipoint = 1, n_points_final_grid
-  f_psi_B_old(ipoint) = 0.d0
+  f_psi_ab_old(ipoint) = 0.d0
   r(1) = final_grid_points(1,ipoint)
   r(2) = final_grid_points(2,ipoint)
   r(3) = final_grid_points(3,ipoint)
-  call expectation_value_in_real_space(r,r,coulomb,two_body_dm)
-  f_psi_B_old(ipoint) = coulomb
+  call f_PSI_ab_routine(r,r,coulomb,two_body_dm)
+  f_psi_ab_old(ipoint) = coulomb
  enddo
  !$OMP END DO
  !$OMP END PARALLEL
  call wall_time(wall1)
- print*,'Time to provide f_psi_B_old = ',wall1 - wall0
+ print*,'Time to provide f_psi_ab_old = ',wall1 - wall0
+END_PROVIDER 
+
+
+BEGIN_PROVIDER [double precision, integral_f_psi_ab_old]
+ implicit none
+ integer :: ipoint,jpoint
+ double precision :: r1(3),r2(3),coulomb,two_body_dm
+ integer :: k,l 
+ r1 = 0.d0
+ double precision :: wall0,wall1,weight1,weight2,accu,r12
+ print*,'Providing  f_psi_ab_old ..... '
+ provide two_bod_alpha_beta_mo_physician 
+ call wall_time(wall0)
+ call f_PSI_ab_routine(r1,r1,coulomb,two_body_dm)
+ integral_f_psi_ab_old = 0.d0
+ accu = 0.d0
+ !$OMP PARALLEL        &
+ !$OMP DEFAULT (NONE)  &
+ !$OMP PRIVATE (ipoint,jpoint,r1,r2,coulomb,two_body_dm,weight1,weight2,r12) & 
+ !$OMP SHARED  (n_points_final_grid, integral_f_psi_ab_old, final_grid_points,final_weight_functions_at_final_grid_points,accu)
+ !$OMP DO              
+ do ipoint = 1, n_points_final_grid
+  weight1=final_weight_functions_at_final_grid_points(ipoint)
+  r1(1) = final_grid_points(1,ipoint)
+  r1(2) = final_grid_points(2,ipoint)
+  r1(3) = final_grid_points(3,ipoint)
+  do jpoint = 1, n_points_final_grid
+   weight2=final_weight_functions_at_final_grid_points(jpoint)
+   r2(1) = final_grid_points(1,jpoint)
+   r2(2) = final_grid_points(2,jpoint)
+   r2(3) = final_grid_points(3,jpoint)
+   call f_PSI_ab_routine(r1,r2,coulomb,two_body_dm)
+   integral_f_psi_ab_old += coulomb  * weight1 * weight2
+   r12 = dsqrt((r1(1)-r2(1))**2 + (r1(2)-r2(2))**2 + (r1(3)-r2(3))**2)
+   if(r12.gt.1.d-15)then
+    accu += two_body_dm * 1.d0/r12 * weight1 * weight2
+   endif
+  enddo
+ enddo
+ !$OMP END DO
+ !$OMP END PARALLEL
+ call wall_time(wall1)
+ print*,'Time to provide f_psi_ab_old = ',wall1 - wall0
+ print*,'integral_f_psi_ab_old = ',integral_f_psi_ab_old
+ print*,'accu                  = ',accu
+ print*,'psi_energy_bielec     = ',psi_energy_bielec
 END_PROVIDER 
 

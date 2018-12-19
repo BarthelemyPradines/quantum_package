@@ -65,6 +65,7 @@
  END_DOC
  integer :: i,j,k,l,istate
  double precision :: cpu_0,cpu_1
+ double precision :: accu
  two_bod_alpha_beta_mo_transposed= 0.d0
  print*,'providing two_bod_alpha_beta transposed ...'
  call cpu_time(cpu_0)

@@ -1,10 +1,18 @@
-program printwf
+program print_wf
  implicit none 
+ BEGIN_DOC
+ ! print the wave function stored in the EZFIO folder in the intermediate normalization 
+ !
+ ! it also prints a lot of information regarding the excitation operators from the reference determinant
+ ! 
+ ! and a first-order perturbative analysis of the wave function. 
+ ! 
+ ! If the wave function strongly deviates from the first-order analysis, something funny is going on :)
+ END_DOC
+ ! this has to be done in order to be sure that N_det, psi_det and psi_coef are the wave function stored in the EZFIO folder 
  read_wf = .True.
  touch read_wf
- print*,'ref_bitmask_energy = ',ref_bitmask_energy
  call routine
-
 end
 
 subroutine routine
@@ -68,7 +76,7 @@ subroutine routine
      norm_mono_b_pert_2 += dabs(coef_1)**2
     endif
     double precision :: hmono,hdouble
-    call  i_H_j_verbose(psi_det(1,1,1),psi_det(1,1,i),N_int,hij,hmono,hdouble)
+    call  i_H_j_verbose(psi_det(1,1,1),psi_det(1,1,i),N_int,hij,hmono,hdouble,phase)
     print*,'hmono         = ',hmono
     print*,'hdouble       = ',hdouble
     print*,'hmono+hdouble = ',hmono+hdouble

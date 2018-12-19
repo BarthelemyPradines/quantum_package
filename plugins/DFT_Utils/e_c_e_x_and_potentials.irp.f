@@ -121,9 +121,9 @@ subroutine LDA_type_functional(r,rho_a,rho_b,vx_a,vx_b,vc_a,vc_b,ex,ec)
   !dx2 = dsqrt(r12**2/3.d0)
   !dr2(:) = dx2
   !r2 += dr2
-  !call local_r12_operator_on_hf(r,r2,local_potential)
+  !call f_HF_aa(r,r2,local_potential)
   !mu =  mu_coulomb(local_potential,r12)
-   call local_r12_operator_on_hf(r,r,local_potential)
+   call f_HF_aa(r,r,local_potential)
    mu =  local_potential * dsqrt(dacos(-1.d0)) * 0.5d0
    call ex_lda_sr(mu,rho_a(istate),rho_b(istate),ex(istate),vx_a(istate),vx_b(istate))
   else if(exchange_functional.EQ."None")then
@@ -146,7 +146,7 @@ subroutine LDA_type_functional(r,rho_a,rho_b,vx_a,vx_b,vc_a,vc_b,ex,ec)
    dx2 = dsqrt(r12**2/3.d0)
    dr2(:) = dx2
    r2 += dr2
-   call local_r12_operator_on_hf(r,r2,local_potential)
+   call f_HF_aa(r,r2,local_potential)
    mu =  mu_coulomb(local_potential,r12)
    call ec_lda_sr(mu,rho_a(istate),rho_b(istate),ec(istate),vc_a(istate),vc_b(istate))
   else if(correlation_functional.EQ."None")then
@@ -180,9 +180,9 @@ subroutine GGA_type_functionals(r,rho_a,rho_b,grad_rho_a_2,grad_rho_b_2,grad_rho
    dx2 = dsqrt(r12**2/3.d0)
    dr2(:) = dx2
    r2 += dr2
-  !call local_r12_operator_on_hf(r,r2,local_potential)
+  !call f_HF_aa(r,r2,local_potential)
   !mu =  mu_coulomb(local_potential,r12)
-   call local_r12_operator_on_hf(r,r,local_potential)
+   call f_HF_aa(r,r,local_potential)
    mu =  local_potential * dsqrt(dacos(-1.d0)) * 0.5d0
    call ex_pbe_sr(mu,rho_a(istate),rho_b(istate),grad_rho_a_2(istate),grad_rho_b_2(istate),grad_rho_a_b(istate),ex(istate),vx_rho_a(istate),vx_rho_b(istate),vx_grad_rho_a_2(istate),vx_grad_rho_b_2(istate),vx_grad_rho_a_b(istate))
   else if(exchange_functional.EQ."None")then

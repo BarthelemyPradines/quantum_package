@@ -395,21 +395,6 @@ subroutine local_r12_operator_with_one_e_int_on_1s(r1,r2,integral)
 
 end
 
-BEGIN_PROVIDER [double precision, integrals_for_hf_potential, (mo_tot_num,mo_tot_num,elec_beta_num,elec_alpha_num)]
- implicit none
- integer :: i,j,m,n
- double precision :: get_mo_bielec_integral
- do m = 1, elec_alpha_num ! electron 1 alpha 
-  do n = 1, elec_beta_num ! electron 2 beta 
-   do i = 1, mo_tot_num   ! electron 1 alpha
-    do j = 1, mo_tot_num  ! electron 2 beta 
-     integrals_for_hf_potential(j,i,n,m) = get_mo_bielec_integral(m,n,i,j,mo_integrals_map) 
-    enddo
-   enddo
-  enddo
- enddo
-END_PROVIDER 
-
 BEGIN_PROVIDER [double precision, integrals_for_hf_potential_integrated_on_beta, (mo_tot_num,elec_alpha_num)]
  implicit none
  integer :: i,j,k
@@ -484,42 +469,6 @@ subroutine local_r12_operator_on_hf_act(r1,r2,integral_psi)
 end
 
 
-subroutine local_r12_operator_on_hf(r1,r2,integral_psi)
- implicit none
- BEGIN_DOC
-! computes the following ANALYTICAL integral
-! \sum_{m,n,i,j} V_{ij}^{mn} phi_i(1) * phi_j(2) * phi_m(1) * phi_n(2) / rho_alpha^{HF}(1)*rho_beta^{HF}(2)
- END_DOC
- double precision, intent(in) :: r1(3), r2(3)
- double precision, intent(out):: integral_psi
- integer :: i,j,m,n
- integer :: ii,jj,mm,nn
- double precision :: mo_bielec_integral,two_bod
- double precision :: mos_array_r1(mo_tot_num)
- double precision :: mos_array_r2(mo_tot_num)
- double precision :: get_mo_bielec_integral
- call give_all_mos_at_r(r1,mos_array_r1) 
- call give_all_mos_at_r(r2,mos_array_r2) 
-
- integral_psi = 0.d0
- two_bod = 0.d0
- do m = 1, elec_alpha_num
-  do n = 1, elec_beta_num
-   two_bod += mos_array_r1(n) * mos_array_r1(n) * mos_array_r2(m) * mos_array_r2(m) 
-   do i = 1, mo_tot_num
-    do j = 1, mo_tot_num
-     integral_psi +=  integrals_for_hf_potential(j,i,n,m) * mos_array_r1(i) * mos_array_r2(j) * mos_array_r2(n) * mos_array_r1(m) 
-    enddo
-   enddo
-  enddo
- enddo
- if(two_bod.le.1.d-12.or.integral_psi.le.0.d0)then
-   integral_psi = 1.d-10
- else 
-   integral_psi = integral_psi /  two_bod
- endif
-
-end
 
 subroutine integral_of_f_12_hf_over_beta(r1,integral_f)
  implicit none
@@ -560,34 +509,6 @@ end
  enddo
  END_PROVIDER 
 
-
-subroutine pure_expectation_value_on_hf(r1,r2,integral_psi)
- implicit none
- BEGIN_DOC
-! computes the following ANALYTICAL integral
-! \sum_{m,n,i,j} V_{ij}^{mn} phi_i(1) * phi_j(2) * phi_m(1) * phi_n(2) / rho_alpha^{HF}(1)*rho_beta^{HF}(2)
- END_DOC
- double precision, intent(in) :: r1(3), r2(3)
- double precision, intent(out):: integral_psi
- integer :: k,l,i,j,m,n
- double precision :: mos_array_r1(mo_tot_num)
- double precision :: mos_array_r2(mo_tot_num)
- double precision :: get_mo_bielec_integral
- call give_all_mos_at_r(r1,mos_array_r1) 
- call give_all_mos_at_r(r2,mos_array_r2) 
-
- integral_psi = 0.d0
- do m = 1, elec_alpha_num
-  do n = 1, elec_beta_num 
-   do i = 1, mo_tot_num
-    do j = 1, mo_tot_num
-     integral_psi +=  integrals_for_hf_potential(j,i,n,m) * mos_array_r1(i) * mos_array_r2(j) * mos_array_r2(n) * mos_array_r1(m) 
-    enddo
-   enddo
-  enddo
- enddo
-
-end
 
 BEGIN_PROVIDER [double precision, hf_bielec_alpha_beta_energy]
  implicit none

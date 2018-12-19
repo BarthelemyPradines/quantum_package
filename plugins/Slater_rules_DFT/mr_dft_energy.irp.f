@@ -41,7 +41,7 @@ END_PROVIDER
  
   write(*, '(A28,X,F16.10)') 'Variational energy of Psi = ',psi_energy
   write(*, '(A28,X,F16.10)') 'psi_energy_bielec         = ',psi_energy_bielec
-  write(*, '(A28,X,F16.10)') 'psi_energy_monoelec       = ',psi_kinetic_energy+psi_nuclear_elec_energy
+  write(*, '(A28,X,F16.10)') 'psi_energy_h_core       = ',psi_dft_energy_kinetic+psi_dft_energy_nuclear_elec
 ! write(*, '(A28,X,F16.10)') 'corrected Multi-det correl= ',Energy_c_md_on_top(1)
  end
 
@@ -87,9 +87,9 @@ subroutine print_variational_energy_dft_mu_of_r
    write(*, '(A28,X,F16.10)') 'Variational energy of Psi = ',psi_energy + nuclear_repulsion
    print*, 'Component of the energy ....'
    write(*, '(A28,X,F16.10)') 'psi_energy_bielec         = ',psi_energy_bielec
-   write(*, '(A28,X,F16.10)') 'psi_energy_monoelec       = ',psi_kinetic_energy+psi_nuclear_elec_energy
-   write(*, '(A28,X,F16.10)') 'psi_kinetic_energy        = ',psi_kinetic_energy
-   write(*, '(A28,X,F16.10)') 'psi_nuclear_elec_energy   = ',psi_nuclear_elec_energy
+   write(*, '(A28,X,F16.10)') 'psi_energy_h_core       = ',psi_dft_energy_kinetic+psi_dft_energy_nuclear_elec
+   write(*, '(A28,X,F16.10)') 'psi_dft_energy_kinetic        = ',psi_dft_energy_kinetic
+   write(*, '(A28,X,F16.10)') 'psi_dft_energy_nuclear_elec   = ',psi_dft_energy_nuclear_elec
    write(*, '(A28,X,F16.10)') 'nuclear_repulsion         = ',nuclear_repulsion
    print*, ''
    write(*, '(A28,X,F16.10)') 'DFT mu(r)     correlation = ',Energy_c_md_mu_of_r_LDA
@@ -207,17 +207,17 @@ subroutine print_projected_energy_dft
 end
 
 
- BEGIN_PROVIDER [double precision, psi_kinetic_energy, (N_states) ]
-&BEGIN_PROVIDER [double precision, psi_nuclear_elec_energy, (N_states) ]
+ BEGIN_PROVIDER [double precision, psi_dft_energy_kinetic, (N_states) ]
+&BEGIN_PROVIDER [double precision, psi_dft_energy_nuclear_elec, (N_states) ]
  implicit none
  integer :: i,j,istate
- psi_kinetic_energy = 0.d0
- psi_nuclear_elec_energy = 0.d0 
+ psi_dft_energy_kinetic = 0.d0
+ psi_dft_energy_nuclear_elec = 0.d0 
  do istate = 1, N_states 
   do i = 1, mo_tot_num
    do j = 1, mo_tot_num
-    psi_kinetic_energy(istate)      += ( one_body_dm_mo_alpha(j,i,istate)+one_body_dm_mo_beta(j,i,istate)) * mo_kinetic_integral(j,i) 
-    psi_nuclear_elec_energy(istate) += ( one_body_dm_mo_alpha(j,i,istate)+one_body_dm_mo_beta(j,i,istate)) * mo_nucl_elec_integral(j,i) 
+    psi_dft_energy_kinetic(istate)      += ( one_body_dm_mo_alpha(j,i,istate)+one_body_dm_mo_beta(j,i,istate)) * mo_kinetic_integral(j,i) 
+    psi_dft_energy_nuclear_elec(istate) += ( one_body_dm_mo_alpha(j,i,istate)+one_body_dm_mo_beta(j,i,istate)) * mo_nucl_elec_integral(j,i) 
    enddo
   enddo
  enddo

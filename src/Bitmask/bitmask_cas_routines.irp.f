@@ -405,64 +405,6 @@ logical function is_a_two_holes_two_particles(key_in)
 
 
 
-integer function number_of_holes_verbose(key_in)
- BEGIN_DOC
- ! function that returns the number of holes in the inact space 
- END_DOC
- implicit none
- integer(bit_kind), intent(in) :: key_in(N_int,2)
- integer :: i
- integer(bit_kind) :: key_tmp(N_int,2)
- print*,'HOLES '
- print*,'jey_in = '
- call debug_det(key_in,N_int)
- number_of_holes_verbose = 0
-   key_tmp(1,1) = xor(key_in(1,1),iand(key_in(1,1),act_bitmask(1,1)))
-   key_tmp(1,2) = xor(key_in(1,2),iand(key_in(1,2),act_bitmask(1,1)))
-   call debug_det(key_tmp,N_int)
-   key_tmp(1,1) = iand(key_tmp(1,1),reunion_of_core_inact_bitmask(1,1))
-   key_tmp(1,2) = iand(key_tmp(1,2),reunion_of_core_inact_bitmask(1,2))
-   call debug_det(key_tmp,N_int)
-   key_tmp(1,1) = xor(key_tmp(1,1),reunion_of_core_inact_bitmask(1,1))
-   key_tmp(1,2) = xor(key_tmp(1,2),reunion_of_core_inact_bitmask(1,2))
-   call debug_det(key_tmp,N_int)
-!  number_of_holes_verbose = number_of_holes_verbose + popcnt(key_tmp(1,1))   &
-!                                                    + popcnt(key_tmp(1,2))
-   number_of_holes_verbose = number_of_holes_verbose & 
-   + popcnt( xor( iand(reunion_of_core_inact_bitmask(1,1), xor(key_in(1,1),iand(key_in(1,1),act_bitmask(1,1)))), reunion_of_core_inact_bitmask(1,1)) )&   
-   + popcnt( xor( iand(reunion_of_core_inact_bitmask(1,2), xor(key_in(1,2),iand(key_in(1,2),act_bitmask(1,2)))), reunion_of_core_inact_bitmask(1,2)) )
-  print*,'----------------------'
-end
-
-
-integer function number_of_particles_verbose(key_in)
- BEGIN_DOC
- ! function that returns the number of particles in the inact space 
- END_DOC
- implicit none
- integer(bit_kind), intent(in) :: key_in(N_int,2)
- integer :: i
- integer(bit_kind) :: key_tmp(N_int,2)
- print*,'PARTICLES '
- print*,'jey_in = '
- call debug_det(key_in,N_int)
- number_of_particles_verbose = 0
-   key_tmp(1,1) = xor(key_in(1,2),iand(key_in(1,2),act_bitmask(1,1)))
-   key_tmp(1,2) = xor(key_in(1,2),iand(key_in(1,2),act_bitmask(1,1)))
-   call debug_det(key_tmp,N_int)
-   key_tmp(1,1) = iand(key_tmp(1,2),virt_bitmask(1,2))
-   key_tmp(1,2) = iand(key_tmp(1,2),virt_bitmask(1,2))
-   call debug_det(key_tmp,N_int)
-   key_tmp(1,1) = iand(key_tmp(1,1),virt_bitmask(1,1))
-   key_tmp(1,2) = iand(key_tmp(1,2),virt_bitmask(1,2))
-   call debug_det(key_tmp,N_int)
-!  number_of_particles_verbose = number_of_particles_verbose + popcnt(key_tmp(1,1))   &
-!                                                    + popcnt(key_tmp(1,2))
-   number_of_particles_verbose = number_of_particles_verbose & 
-      + popcnt( iand( iand( xor(key_in(1,1),iand(key_in(1,1),act_bitmask(1,1))), virt_bitmask(1,1) ), virt_bitmask(1,1)) ) & 
-      + popcnt( iand( iand( xor(key_in(1,2),iand(key_in(1,2),act_bitmask(1,2))), virt_bitmask(1,2) ), virt_bitmask(1,2)) ) 
-end
-
 logical function is_a_1h1p(key_in)
  implicit none
  integer(bit_kind), intent(in) :: key_in(N_int,2)

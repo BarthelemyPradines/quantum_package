@@ -1,6 +1,9 @@
 
 subroutine set_bit_to_integer(i_physical,key,Nint)
  use bitmasks
+ BEGIN_DOC
+ ! set to 1 the bite number i_physical in the bitstring key
+ END_DOC
  implicit none
  integer, intent(in) :: i_physical,Nint
  integer(bit_kind), intent(inout) :: key(Nint)
@@ -13,6 +16,9 @@ end
 
 subroutine clear_bit_to_integer(i_physical,key,Nint)
  use bitmasks
+ BEGIN_DOC
+ ! set to 0 the bite number i_physical in the bitstring key
+ END_DOC
  implicit none
  integer, intent(in) :: i_physical,Nint
  integer(bit_kind), intent(inout) :: key(Nint)
@@ -28,7 +34,7 @@ subroutine bitstring_to_list( string, list, n_elements, Nint)
   use bitmasks
   implicit none
   BEGIN_DOC
-  ! Gives the inidices(+1) of the bits set to 1 in the bit string
+  ! Gives the indices(+1) of the bits set to 1 in the bit string
   END_DOC
   integer, intent(in)            :: Nint
   integer(bit_kind), intent(in)  :: string(Nint)
