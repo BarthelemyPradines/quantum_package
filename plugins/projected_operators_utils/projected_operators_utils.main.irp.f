@@ -13,7 +13,7 @@ end
 
 subroutine routine_rho
  implicit none
- print*,'integral_r1r2_f_HF_aa = ',integral_r1r2_f_HF_aa
+ !print*,'integral_r1r2_f_HF_aa = ',integral_r1r2_f_HF_aa
  print*,'psi_energy_bielec      = ',psi_energy_bielec
 
 end

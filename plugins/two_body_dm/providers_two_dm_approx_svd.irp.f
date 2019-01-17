@@ -251,7 +251,7 @@ end
     do k=1,mo_tot_num
      do l=1,mo_tot_num
       kl += 1
-      mat_i(kl,ij) = two_bod_alpha_beta_mo_physician(l,k,j,i,istate) - one_body_dm_alpha_mo_for_dft(k,i,istate)* one_body_dm_beta_mo_for_dft(l,j,istate)
+      mat_i(kl,ij) = two_bod_alpha_beta_mo_physician(l,k,j,i,istate) !- one_body_dm_alpha_mo_for_dft(k,i,istate)* one_body_dm_beta_mo_for_dft(l,j,istate)
      enddo
     enddo
    enddo
@@ -310,7 +310,7 @@ END_PROVIDER
     do k=1,mo_tot_num
      do l=1,mo_tot_num
       kl += 1
-      mat_i(kl,ij) = two_bod_alpha_beta_mo_physician(l,k,j,i,istate) - one_body_dm_alpha_mo_for_dft(k,i,istate)*one_body_dm_beta_mo_for_dft(l,j,istate)
+      mat_i(kl,ij) = two_bod_alpha_beta_mo_physician(l,k,j,i,istate) ! - one_body_dm_alpha_mo_for_dft(k,i,istate)*one_body_dm_beta_mo_for_dft(l,j,istate)
      enddo
     enddo
    enddo
